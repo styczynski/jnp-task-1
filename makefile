@@ -2,6 +2,6 @@
 all: ./main
 
 ./main: ./main.cpp
-	g++ ./main.cpp -o ./main -O2 -Wall -Wextra -Wshadow
+	g++ -Wall -Wextra -O2 -std=c++17 punkty.cc -o punkty
 
 .PHONY: all
