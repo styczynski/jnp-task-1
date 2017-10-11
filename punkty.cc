@@ -17,6 +17,10 @@ inline void print_error_in_cin(unsigned int line_number, const std::string &line
     std::cout << "Error in cin, line " << line_number << ": " << line << "\n";
 }
 
+inline void print_error_in_file(const std::string &filename, unsigned int line_number, const std::string &line) {
+    std::cout << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
+}
+
 inline static bool is_digit(const char& c) {
 	return (c>='0') && (c<='9');
 }
@@ -81,11 +85,15 @@ std::vector<Student> read_student_list(const char* filename) {
     
     if(input_stream.is_open()) {
       std::string input_line;
+			unsigned int line_number = 1;
       while(std::getline(input_stream, input_line)) {
 				const std::optional<int> student_id = get_student_id(input_line);
 				if(student_id.has_value()) {
 					student_list.push_back(std::make_tuple(input_line, student_id.value()));
+				} else {
+					print_error_in_file(std::string(filename), line_number, input_line);
 				}
+				++line_number;
       }
 			
       input_stream.close();
