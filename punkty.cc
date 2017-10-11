@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <optional>
+#include <set>
 
 typedef std::tuple<std::string, int> Student;
 typedef std::vector<Student> Group;
@@ -79,18 +80,46 @@ bool verify_id(const std::string &id) {
     return get_student_id(id).has_value();
 }
 
+std::optional<Student> parse_student(const std::string &id) {
+    const auto student_id = get_student_id(id);
+    if(student_id.has_value()) {
+      return std::optional<Student>(make_tuple(id, student_id.value()));
+    } else {
+      return std::optional<Student>();
+    }
+}
+
+/**
+ * Reads given file line by line.
+ * Then tries to parse the line using parse_student(string)
+ * and finally saves the student data into the collection.
+ *
+ * @param[in] filename : const char*
+ * @returns collection containing all valid student entries from file
+ *  
+**/
 std::vector<Student> read_student_list(const char* filename) {
     std::vector<Student> student_list;
     std::ifstream input_stream(filename);
+    
+    std::set<std::string> loaded_ids;
     
     if(input_stream.is_open()) {
         std::string input_line;
         unsigned int line_number = 1;
         while(std::getline(input_stream, input_line)) {
-            const std::optional<int> student_id = get_student_id(input_line);
-            if(student_id.has_value()) {
-                student_list.push_back(std::make_tuple(input_line, student_id.value()));
+            const std::optional<Student> student = parse_student(input_line);
+            if(student.has_value()) {
+                const Student student_value = student.value();
+                if(loaded_ids.find(std::get<0>(student_value)) == loaded_ids.end()) {
+                    student_list.push_back(student_value);
+                    loaded_ids.insert(std::get<0>(student_value));
+                } else {
+                    // Repeating ID
+                    print_error_in_file(std::string(filename), line_number, input_line);
+                }
             } else {
+                // Invalid ID
                 print_error_in_file(std::string(filename), line_number, input_line);
             }
             ++line_number;
@@ -101,8 +130,6 @@ std::vector<Student> read_student_list(const char* filename) {
         // TODO File couldn't be loaded -> throw error
         std::cout<<"Could not read file!\n";
     }
-  
-  
     return student_list;
 }
 
@@ -115,16 +142,6 @@ bool check_basic_group_validity(const std::string &line) {
            line[14] >= '1' &&
            line[14] <= '6' &&
            line[15] == '/';
-}
-
-Student parse_student(const std::string &id) {
-    const auto student_id = get_student_id(id);
-    if(student_id.has_value()) {
-      return make_tuple(id, student_id.value());
-    } else {
-      //TODO Throw error here we have invalid student id!
-      return make_tuple(id, 0);
-    }
 }
 
 std::string student_to_string(const Student& student) {
@@ -147,7 +164,7 @@ std::vector<Group> read_groups(const std::vector<Student> &students) {
             guardian++;
             auto current_id = line.substr(guardian, 8);
             group_validity &= verify_id(current_id);
-            group.push_back(parse_student(current_id));
+            group.push_back(parse_student(current_id).value());
             guardian += 8;
         } while (line[guardian] == '+');
         if (group_validity) {
