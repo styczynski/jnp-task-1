@@ -1,8 +1,10 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <tuple>
 #include <algorithm>
 #include <string>
+#include <optional>
 
 typedef std::tuple<std::string, int> Student;
 typedef std::vector<Student> Group;
@@ -15,13 +17,85 @@ inline void print_error_in_cin(unsigned int line_number, const std::string &line
     std::cout << "Error in cin, line " << line_number << ": " << line << "\n";
 }
 
+inline static bool is_digit(const char& c) {
+	return (c>='0') && (c<='9');
+}
+
+inline static bool is_low_case_letter(const char& c) {
+	return (c>='a') && (c<='z');
+}
+
+// TODO: Handle overflow anyway there below
+// (I know, yes I know we ARE overkilling now...)
+inline static std::optional<int> parse_non_negative_integer(const std::string& input, const int starting_index=0) {
+	const int len = input.size();
+	int result = 0;
+	for(int i=starting_index; i<len; ++i) {
+		if(!is_digit(input[i])) {
+			// Error: non digit character in input string!
+			return std::optional<int>();
+		} else {
+			result = result * 10 + (input[i]-'0');
+		}
+	}
+	return std::optional<int>(result);
+}
+	
+std::optional<int> get_student_id(const std::string& id) {
+	// Invalid length
+	if(id.size() < 8) return std::optional<int>();
+	
+	// Two first are letters (lowercase, english alphabet)
+	if(!is_low_case_letter(id[0]) ||
+     !is_low_case_letter(id[1])) {
+		return std::optional<int>();
+	}
+	
+	// We test third character
+	if(is_digit(id[2])) {
+		// If we have digit we try to match FULL ID form
+		// xx000000
+		
+		// Everything left should be a valid number
+		return parse_non_negative_integer(id, 3);
+	} else {
+		// If not we try to match DASHED ID form
+		// xxm-0000
+		
+		if(id[3] != 'm') return std::optional<int>();
+		if(id[4] != '-') return std::optional<int>();
+		
+		// Everything left should be a valid number
+		return parse_non_negative_integer(id, 5);
+	}
+	
+}
+
 bool verify_id(const std::string &id) {
     return !id.empty();//TODO placeholder
 }
 
-auto read_student_list() {
-    //returns std::vector<std::tuple<std::string, int>>
-    // TODO styczyn
+std::vector<Student> read_student_list(const char* filename) {
+    std::vector<Student> student_list;
+    std::ifstream input_stream(filename);
+    
+    if(input_stream.is_open()) {
+      std::string input_line;
+      while(std::getline(input_stream, input_line)) {
+				const std::optional<int> student_id = get_student_id(input_line);
+				if(student_id.has_value()) {
+					student_list.push_back(std::make_tuple(input_line, student_id.value()));
+				}
+      }
+			
+      input_stream.close();
+    } else {
+			// TODO: File couldn't be loaded -> throw error
+			std::cout<<"Could not read file!\n";
+		}
+		
+		
+		return student_list;
 }
 
 bool check_basic_group_validity(const std::string &line) {
@@ -36,7 +110,8 @@ bool check_basic_group_validity(const std::string &line) {
 }
 
 Student parse_student(const std::string &id) {
-    return {id, 0}; //TODO placeholder
+		return make_tuple(id, 0);
+    //return {id, 0}; //TODO placeholder
 }
 
 std::string student_to_string(const Student& student) {
@@ -81,13 +156,13 @@ std::vector<Group> read_groups(const std::vector<Student> &students) {
     return result;
 }
 
-void print_bad_students(const std::vector<Group> &groups,
-                        const std::vector<Student> &students) {
+void print_bad_students(const std::vector<Student> &students,
+												const std::vector<Group> &groups) {
     std::vector<int> deducted_points(students.size());
 
     // TODO implement the rest
 
-    for (int i = 0; i < deducted_points.size(); ++i) {
+    for (int i = 0; i < (signed)deducted_points.size(); ++i) {
         int current_id;
         std::tie(std::ignore, current_id) = students[i];
         std::cout << current_id << ";" << deducted_points[i] << ";\n";
@@ -96,14 +171,15 @@ void print_bad_students(const std::vector<Group> &groups,
 
 int main(int argc, char **argv) {
 
-    if (argc != 1) {
+    if (argc != 2) {
         //TODO: Throw error
         print_usage_message(argv[0]);
         return 1;
     }
-    auto students = read_student_list();
-    auto groups = read_groups(students);
-    print_bad_students(students, groups);
-
+		
+		auto students = read_student_list(argv[1]);
+		auto groups = read_groups(students);
+		print_bad_students(students, groups);
+		
     return 0;
 }

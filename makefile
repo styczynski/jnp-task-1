@@ -1,7 +1,14 @@
 
-all: ./main
+all: ./punkty
+	$(info Compilation done.)
 
-./main: ./main.cpp
+./punkty: ./punkty.cc
+	$(info Compile punkty.cc ...)
 	g++ -Wall -Wextra -O2 -std=c++17 punkty.cc -o punkty
-
-.PHONY: all
+	
+clean:
+	@rm -r -f -d ./punkty
+	
+rebuild: clean all
+	
+.PHONY: all clean
