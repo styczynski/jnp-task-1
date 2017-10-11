@@ -29,9 +29,9 @@ inline static bool is_low_case_letter(const char& c) {
     return (c>='a') && (c<='z');
 }
 
-// TODO: Handle overflow anyway there below
+// TODO Handle overflow anyway there below
 // (I know, yes I know we ARE overkilling now...)
-inline static std::optional<int> parse_non_negative_integer(const std::string& input, const int starting_index=0) {
+std::optional<int> parse_non_negative_integer(const std::string& input, const int starting_index=0) {
     const int len = input.size();
     int result = 0;
     for(int i=starting_index; i<len; ++i) {
@@ -76,7 +76,7 @@ std::optional<int> get_student_id(const std::string& id) {
 }
 
 bool verify_id(const std::string &id) {
-    return !id.empty();//TODO placeholder
+    return get_student_id(id).has_value();
 }
 
 std::vector<Student> read_student_list(const char* filename) {
@@ -98,7 +98,7 @@ std::vector<Student> read_student_list(const char* filename) {
           
         input_stream.close();
     } else {
-        // TODO: File couldn't be loaded -> throw error
+        // TODO File couldn't be loaded -> throw error
         std::cout<<"Could not read file!\n";
     }
   
@@ -118,8 +118,13 @@ bool check_basic_group_validity(const std::string &line) {
 }
 
 Student parse_student(const std::string &id) {
-    return make_tuple(id, 0);
-    //return {id, 0}; //TODO placeholder
+    const auto student_id = get_student_id(id);
+    if(student_id.has_value()) {
+      return make_tuple(id, student_id.value());
+    } else {
+      //TODO Throw error here we have invalid student id!
+      return make_tuple(id, 0);
+    }
 }
 
 std::string student_to_string(const Student& student) {
