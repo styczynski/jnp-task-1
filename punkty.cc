@@ -66,11 +66,11 @@ std::optional<int> get_student_id(const std::string& id) {
         // If not we try to match DASHED ID form
         // xxm-0000
         
-        if(id[3] != 'm') return std::optional<int>();
-        if(id[4] != '-') return std::optional<int>();
+        if(id[2] != 'm') return std::optional<int>();
+        if(id[3] != '-') return std::optional<int>();
         
         // Everything left should be a valid number
-        return parse_non_negative_integer(id, 5);
+        return parse_non_negative_integer(id, 4);
     }
   
 }
