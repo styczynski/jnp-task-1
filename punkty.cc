@@ -1,3 +1,12 @@
+/**
+ * punkty.cc
+ *
+ * Contributors
+ *   @styczynski
+ *   @Joald
+ *   
+ * For description of the problem see README file.
+**/
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -10,19 +19,26 @@
 #include <exception>
 #include <functional>
 
+//
+// Types definitions
+//
 typedef std::pair<std::string, std::string> Student;
 typedef std::vector<Student> Group;
 typedef bool LineError;
 typedef bool InvalidFileException;
 typedef std::vector<std::regex> Regexes;
 
+// Constants
 const int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
 const int NUMBER_OF_FIRST_INPUT_LINE = 1;
-
-static const Regexes student_id_regexes = {
+static const Regexes STUDENT_ID_REGEXES = {
   std::regex("^([a-z]{2})([0-9]{6})$"),
   std::regex("^([a-z]{2})m-([0-9]{4})$")
 };
+
+//
+// Error printing functions
+//
 
 inline void print_usage_message(const std::string &program_name) {
     std::cout << "Usage: " << program_name << " file\n";
@@ -39,6 +55,10 @@ inline void print_error_in_cin(unsigned int line_number, const std::string &line
 inline void print_error_in_file(const std::string &filename, unsigned int line_number, const std::string &line) {
     std::cout << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
 }
+
+//
+// Core functions of program
+//
 
 /**
  * For a given tree values - value, min, max of type T.
@@ -86,14 +106,14 @@ inline static constexpr bool is_low_case_letter(const char& c) {
  * First is letter id and the second numerical part of id.
  *
  * If the Regexes are not passed to the function
- * it utilizes by defult student_id_regexes.
+ * it utilizes by defult STUDENT_ID_REGEXES.
  *
  * @param[in] id    : student id
  * @param[in] forms : regexes
  * @returns generated Student object
  *
 **/
-std::optional<Student> parse_student(const std::string& id, Regexes forms = student_id_regexes) {
+std::optional<Student> parse_student(const std::string& id, Regexes forms = STUDENT_ID_REGEXES) {
     // Invalid length
     if(id.size() < 8) return {};
 
@@ -292,7 +312,10 @@ void print_bad_students(const std::vector<Student> &students,
     }
 }
 
+//
 // Application entry point
+//
+
 int main(int argc, char **argv) {
   
     // Invalid number of command line parameters
