@@ -7,9 +7,18 @@
 #include <optional>
 #include <set>
 #include <regex>
+#include <exception>
+#include <functional>
 
 typedef std::tuple<std::string, std::string> Student;
 typedef std::vector<Student> Group;
+
+class InvalidFileException : public std::exception {
+public:
+   const char * what () const throw () {
+      return "File is unreachable or not exists. Could not open it.";
+   }
+};
 
 static const std::regex student_id_form_normal("^([a-z]{2}([0-9]{6}))$");
 static const std::regex student_id_form_dashed("^([a-z]{2}m-([0-9]{4}))$");
@@ -17,6 +26,10 @@ static const std::regex student_id_form_dashed("^([a-z]{2}m-([0-9]{4}))$");
 
 inline void print_usage_message(const std::string &program_name) {
     std::cout << "Usage: " << program_name << " file\n";
+}
+
+inline void print_error_with_file(const std::string &filename) {
+  std::cout << "Error: problem with file " << filename << "\n";
 }
 
 inline void print_error_in_cin(unsigned int line_number, const std::string &line) {
@@ -84,7 +97,7 @@ std::optional<Student> parse_student(const std::string &id) {
  * @returns collection containing all valid student entries from file
  *
 **/
-std::vector<Student> read_student_list(const char* filename) {
+std::vector<Student> read_student_list(const char* filename, std::function<void(std::string, int, std::string)> loading_error_handler) {
     std::vector<Student> student_list;
     std::ifstream input_stream(filename);
 
@@ -102,19 +115,18 @@ std::vector<Student> read_student_list(const char* filename) {
                     loaded_ids.insert(std::get<0>(student_value));
                 } else {
                     // Repeating ID
-                    print_error_in_file(std::string(filename), line_number, input_line);
+                    loading_error_handler(std::string(filename), line_number, input_line);
                 }
             } else {
                 // Invalid ID
-                print_error_in_file(std::string(filename), line_number, input_line);
+                loading_error_handler(std::string(filename), line_number, input_line);
             }
             ++line_number;
         }
 
         input_stream.close();
     } else {
-        // TODO File couldn't be loaded -> throw error
-        std::cout<<"Could not read file!\n";
+        throw InvalidFileException();
     }
     return student_list;
 }
@@ -132,6 +144,7 @@ bool check_basic_group_validity(const std::string &line) {
            line[15] == '/';
 }
 
+//TODO Fix that
 std::string student_to_string(const Student& student) {
     std::string init;
     std::string id_number;
@@ -191,14 +204,17 @@ void print_bad_students(const std::vector<Student> &students,
 int main(int argc, char **argv) {
 
     if (argc != 2) {
-        //TODO: Throw error
         print_usage_message(argv[0]);
         return 1;
     }
 
-    auto students = read_student_list(argv[1]);
-    auto groups = read_groups(students);
-    print_bad_students(students, groups);
+    try {
+      auto students = read_student_list(argv[1], print_error_in_file);
+      auto groups = read_groups(students);
+      print_bad_students(students, groups);
+    } catch(const InvalidFileException& e) {
+      print_error_with_file(argv[1]);
+    }
 
     return 0;
 }
