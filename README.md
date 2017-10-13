@@ -90,9 +90,12 @@ Error in cin, line N: TEXT
 where N is the line number and TEXT is the original form of the loaded line.
 
 If the team description is correct, there may be two reasons for questioning
-in the student ID:
-- did not appear in the file named as program argument,
-- repeats in the same unit.
+in the student ID: 
+
+* did not appear in the file named as program argument, 
+
+* repeats in the same unit. 
+
 In case of questioning the student ID, the program should be discharged
 statement
 
@@ -114,6 +117,8 @@ error and take note of them in the written messages.
 
 List of student IDs in _test_1.file:
 
+```
+
 ab111111
 cd222222
 ef333333
@@ -124,7 +129,11 @@ ab01234
 cab12345
 ZZM-1000
 
+```
+
 List of team descriptions:
+
+```
 
 group1 / Job1 / ab111111 + cd222222
 group2 / Job1 / gh444444 + ij555555
@@ -138,13 +147,21 @@ group1 / zadanie5 / cd222222 cd222222 + + pr999999
 group1 / zadanie5 / pr999999 pr999999 + + pr999999
 group1 / Job2 / ab111111 + ef333333
 
+```
+
 The program outputs to the standard output:
+
+```
 
 111111; 7;
 222222; 6;
 333333; 1;
 
+```
+
 The program writes to the standard error output:
+
+```
 
 Error in _test_1.file, line 6: ab111111
 Error in _test_1.file, line 7: ab01234
@@ -160,11 +177,13 @@ Error in cin, line 10: pr999999
 Error in cin, line 10: pr999999
 Error in cin, line 10: pr999999
 
+```
+
 ### formal requirements
 
 The program will be compiled on the student machine with a command
 
-g ++ -Wall -Wextra -O2 -std = c ++ 17 points.cc -o points
+`g ++ -Wall -Wextra -O2 -std = c ++ 17 points.cc -o points`
 
 Expected solution should not contain definitions of own structures and classes.
 Instead, you should use containers and algorithms extensively
@@ -174,11 +193,11 @@ and the file should be streamed.
 The solution should be placed in the file points.cc, which should be placed
 in the SVN repository in the directory
 
-grupaN / Job1 / AB123456 + cd123456
+`grupaN / Job1 / AB123456 + cd123456`
 
 or
 
-grupaN / Job1 / AB123456 cd123456 + + ef123456
+`grupaN / Job1 / AB123456 cd123456 + + ef123456`
 
 where N is the group number, and ab123456, cd123456, ef123456 are identifiers
 The members of the team placing this solution. Catalog with no solution
@@ -266,9 +285,12 @@ Error in cin, line N: TEKST
 gdzie N jest numerem wiersza, a TEKST to oryginalna postaą wczytanej linii.
 
 Jełli opis zespołu jest poprawny, to mogą wystąpią dwa powody zakwestionowania
-w nim identyfikatora studenta:
-- nie pojawił sią w pliku, którego nazwą podano jako argument programu,
-- wystąpuje jego powtórzenie w tym samym zespole.
+w nim identyfikatora studenta: 
+
+* nie pojawił sią w pliku, którego nazwą podano jako argument programu, 
+
+* wystąpuje jego powtórzenie w tym samym zespole. 
+
 W przypadku zakwestionowania identyfikatora studenta program powinien wypisaą
 komunikat
 
@@ -290,6 +312,8 @@ błąd i uwzglądniaą je w wypisywanych komunikatach.
 
 Lista identyfikatorów studentów w pliku _test_1.file:
 
+```
+
 ab111111
 cd222222
 ef333333
@@ -300,7 +324,11 @@ ab01234
 cab12345
 zzm-1000
 
+```
+
 Lista opisów zespołów:
+
+```
 
 grupa1/zadanie1/ab111111+cd222222
 grupa2/zadanie1/gh444444+ij555555
@@ -314,13 +342,21 @@ grupa1/zadanie5/cd222222+cd222222+pr999999
 grupa1/zadanie5/pr999999+pr999999+pr999999
 grupa1/zadanie2/ab111111+ef333333
 
+```
+
 Program wypisuje na standardowe wyjłcie:
+
+```
 
 111111;7;
 222222;6;
 333333;1;
 
+```
+
 Program wypisuje na standardowe wyjłcie błądów:
+
+```
 
 Error in _test_1.file, line 6: ab111111
 Error in _test_1.file, line 7: ab01234
@@ -337,11 +373,13 @@ Error in cin, line 10: pr999999
 Error in cin, line 10: pr999999
 Error in cin, line 10: pr999999
 
+```
+
 ### Wymagania formalne
 
 Program bądzie kompilowany na maszynie students poleceniem
 
-g++ -Wall -Wextra -O2 -std=c++17 punkty.cc -o punkty
+`g++ -Wall -Wextra -O2 -std=c++17 punkty.cc -o punkty`
 
 Oczekiwane rozwiązanie nie powinno zawieraą definicji własnych struktur i klas.
 Zamiast tego należy intensywnie korzystaą z kontenerów i algorytmów
@@ -351,11 +389,11 @@ oraz pliku należy zrealizowaą za pomocą strumieni.
 Rozwiązanie należy umieścić w pliku punkty.cc, który należy umieścić
 w repozytorium SVN w katalogu
 
-grupaN/zadanie1/ab123456+cd123456
+`grupaN/zadanie1/ab123456+cd123456`
 
 lub
 
-grupaN/zadanie1/ab123456+cd123456+ef123456
+`grupaN/zadanie1/ab123456+cd123456+ef123456`
 
 gdzie N jest numerem grupy, a ab123456, cd123456, ef123456 są identyfikatorami
 członków zespołu umieszczającego to rozwiązanie. Katalog z rozwiązaniem nie
