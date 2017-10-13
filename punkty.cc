@@ -6,9 +6,14 @@
 #include <string>
 #include <optional>
 #include <set>
+#include <regex>
 
-typedef std::tuple<std::string, int> Student;
+typedef std::tuple<std::string, std::string> Student;
 typedef std::vector<Student> Group;
+
+static const std::regex student_id_form_normal("^([a-z]{2}([0-9]{6}))$");
+static const std::regex student_id_form_dashed("^([a-z]{2}m-([0-9]{4}))$");
+
 
 inline void print_usage_message(const std::string &program_name) {
     std::cout << "Usage: " << program_name << " file\n";
@@ -22,58 +27,39 @@ inline void print_error_in_file(const std::string &filename, unsigned int line_n
     std::cout << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
 }
 
-inline static bool is_digit(const char& c) {
-    return (c>='0') && (c<='9');
+template<typename T>
+inline static constexpr bool is_in_range(const T& value, const T min, const T max) {
+  return value == std::clamp(value, min, max);
 }
 
-inline static bool is_low_case_letter(const char& c) {
-    return (c>='a') && (c<='z');
+inline static constexpr bool is_digit(const char& c) {
+    return is_in_range(c, '0', '9');
 }
 
-// TODO Handle overflow anyway there below
-// (I know, yes I know we ARE overkilling now...)
-std::optional<int> parse_non_negative_integer(const std::string& input, const int starting_index=0) {
-    const int len = input.size();
-    int result = 0;
-    for(int i=starting_index; i<len; ++i) {
-        if(!is_digit(input[i])) {
-            // Error: non digit character in input string!
-            return std::optional<int>();
-        } else {
-            result = result * 10 + (input[i]-'0');
-        }
-    }
-    return std::optional<int>(result);
+inline static constexpr bool is_low_case_letter(const char& c) {
+    return is_in_range(c, 'a', 'z');
 }
-  
-std::optional<int> get_student_id(const std::string& id) {
+
+
+std::optional<std::string> get_student_id(const std::string& id) {
     // Invalid length
-    if(id.size() < 8) return std::optional<int>();
-    
-    // Two first are letters (lowercase, english alphabet)
-    if(!is_low_case_letter(id[0]) ||
-       !is_low_case_letter(id[1])) {
-        return std::optional<int>();
-    }
-    
-    // We test third character
-    if(is_digit(id[2])) {
-        // If we have digit we try to match FULL ID form
-        // xx000000
-        
-        // Everything left should be a valid number
-        return parse_non_negative_integer(id, 3);
+    if(id.size() < 8) return {};
+
+    std::smatch normalFormMatches;
+    std::smatch dashedFormMatches;
+
+    const bool isNormalForm = std::regex_search(id, normalFormMatches, student_id_form_normal);
+    const bool isDashedForm = std::regex_search(id, dashedFormMatches, student_id_form_dashed);
+
+    if(isNormalForm) {
+      //std::cout << "MATCHED NORMAL FORM = "<<normalFormMatches[2].str()<<" from "<<id<<"\n";
+      return {normalFormMatches[2].str()};
+    } else if(isDashedForm) {
+      //std::cout << "MATCHED DASHED FORM = "<<dashedFormMatches[2].str()<<" from "<<id<<"\n";
+      return {dashedFormMatches[2].str()};
     } else {
-        // If not we try to match DASHED ID form
-        // xxm-0000
-        
-        if(id[2] != 'm') return std::optional<int>();
-        if(id[3] != '-') return std::optional<int>();
-        
-        // Everything left should be a valid number
-        return parse_non_negative_integer(id, 4);
+      return {};
     }
-  
 }
 
 bool verify_id(const std::string &id) {
@@ -96,14 +82,14 @@ std::optional<Student> parse_student(const std::string &id) {
  *
  * @param[in] filename : const char*
  * @returns collection containing all valid student entries from file
- *  
+ *
 **/
 std::vector<Student> read_student_list(const char* filename) {
     std::vector<Student> student_list;
     std::ifstream input_stream(filename);
-    
+
     std::set<std::string> loaded_ids;
-    
+
     if(input_stream.is_open()) {
         std::string input_line;
         unsigned int line_number = 1;
@@ -124,7 +110,7 @@ std::vector<Student> read_student_list(const char* filename) {
             }
             ++line_number;
         }
-          
+
         input_stream.close();
     } else {
         // TODO File couldn't be loaded -> throw error
@@ -132,6 +118,8 @@ std::vector<Student> read_student_list(const char* filename) {
     }
     return student_list;
 }
+
+
 
 bool check_basic_group_validity(const std::string &line) {
     return line.substr(0, 5) == "grupa" &&
@@ -146,9 +134,10 @@ bool check_basic_group_validity(const std::string &line) {
 
 std::string student_to_string(const Student& student) {
     std::string init;
-    int id_number;
-    std::tie(init, id_number) = student;
-    return init + std::to_string(id_number);
+    std::string id_number;
+    //std::tie(init, id_number) = student;
+    //return init + std::to_string(id_number);
+    return "";
 }
 
 std::vector<Group> read_groups(const std::vector<Student> &students) {
@@ -194,7 +183,7 @@ void print_bad_students(const std::vector<Student> &students,
 
     for (int i = 0; i < (signed)deducted_points.size(); ++i) {
         int current_id;
-        std::tie(std::ignore, current_id) = students[i];
+        //std::tie(std::ignore, current_id) = students[i];
         std::cout << current_id << ";" << deducted_points[i] << ";\n";
     }
 }
@@ -206,10 +195,10 @@ int main(int argc, char **argv) {
         print_usage_message(argv[0]);
         return 1;
     }
-    
+
     auto students = read_student_list(argv[1]);
     auto groups = read_groups(students);
     print_bad_students(students, groups);
-    
+
     return 0;
 }
