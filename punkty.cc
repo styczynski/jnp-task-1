@@ -17,6 +17,7 @@ typedef bool LineError;
 const int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
 const int NUMBER_OF_FIRST_INPUT_LINE = 1;
 
+///idk if this will be accepted since we can't define new classes :(
 class InvalidFileException : public std::exception {
 public:
    const char * what () const throw () {
@@ -86,9 +87,9 @@ bool verify_id(const std::string &id) {
 std::optional<Student> parse_student(const std::string &id) {
     const auto student_id = get_student_id(id);
     if(student_id.has_value()) {
-      return std::optional<Student>(make_tuple(id, student_id.value()));
+      return std::optional<Student>(make_pair(id, student_id.value()));
     } else {
-      return std::optional<Student>();
+      return {};
     }
 }
 
@@ -111,7 +112,8 @@ void throw_if_false(const bool& pred) {
  * @returns collection containing all valid student entries from file
  *
 **/
-std::vector<Student> read_student_list(const char* filename, std::function<void(std::string, int, std::string)> loading_error_handler) {
+std::vector<Student> read_student_list(const std::string& filename, 
+	std::function<void(std::string, int, std::string)> loading_error_handler) {
     std::vector<Student> student_list;
     std::ifstream input_stream(filename);
 
@@ -171,10 +173,10 @@ void check_basic_group_validity(const std::string &line) {
  * @returns pair.first + pair.second
  */
 template <typename T>
-auto merge_pair(const std::pair<T, T>& pair) -> decltype(T + T) {
+auto merge_pair(const std::pair<T, T>& pair) -> decltype(pair.first + pair.second) {
     T first;
     T second;
-    std::tie(first, second) = std::move_if_noexcept(student);
+    std::tie(first, second) = std::move_if_noexcept(pair);
     return second + second;
 }
 
@@ -193,7 +195,7 @@ void fill_group(const Group& group, const std::string& line) {
 		guardian += 8;
 	} while (line[guardian] == '+');
 	throw_if_false(line[guardian] == '\0');
-
+}
 /**
  * Reads groups of students from stdin using std::cin.
  * Verifies their validity, prints errors and saves all valid groups
@@ -248,8 +250,8 @@ void print_bad_students(const std::vector<Student> &students,
     // TODO implement the rest
 
     for (int i = 0; i < (signed)deducted_points.size(); ++i) {
-        int current_id;
-        //std::tie(std::ignore, current_id) = students[i];
+        std::string current_id;
+        std::tie(std::ignore, current_id) = students[i];
         std::cout << current_id << ";" << deducted_points[i] << ";\n";
     }
 }
