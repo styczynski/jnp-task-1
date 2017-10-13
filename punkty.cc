@@ -14,14 +14,15 @@ typedef std::pair<std::string, std::string> Student;
 typedef std::vector<Student> Group;
 typedef bool LineError;
 typedef bool InvalidFileException;
+typedef std::vector<std::regex> Regexes;
 
 const int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
 const int NUMBER_OF_FIRST_INPUT_LINE = 1;
 
-
-static const std::regex student_id_form_normal("^([a-z]{2})([0-9]{6})$");
-static const std::regex student_id_form_dashed("^([a-z]{2})m-([0-9]{4})$");
-
+static const Regexes student_id_regexes = {
+  std::regex("^([a-z]{2})([0-9]{6})$"),
+  std::regex("^([a-z]{2})m-([0-9]{4})$")
+};
 
 inline void print_usage_message(const std::string &program_name) {
     std::cout << "Usage: " << program_name << " file\n";
@@ -39,39 +40,75 @@ inline void print_error_in_file(const std::string &filename, unsigned int line_n
     std::cout << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
 }
 
+/**
+ * For a given tree values - value, min, max of type T.
+ * Checks if value is in boundaries defined by min and max.
+ *
+ * @param[in] value : T
+ * @param[in] min   : T
+ * @param[in] max   : T
+ * @returns If min <= value <= max?
+**/
 template<typename T>
 inline static constexpr bool is_in_range(const T& value, const T min, const T max) {
   return value == std::clamp(value, min, max);
 }
 
+/**
+ * Checks if given character is digit (ASCII).
+ *
+ * @returns logic value
+**/
 inline static constexpr bool is_digit(const char& c) {
     return is_in_range(c, '0', '9');
 }
 
+/**
+ * Checks if given character is low case latin letter (ASCII).
+ *
+ * @returns logic value
+**/
 inline static constexpr bool is_low_case_letter(const char& c) {
     return is_in_range(c, 'a', 'z');
 }
 
 
-std::optional<Student> parse_student(const std::string& id) {
+/**
+ * Generates Student object from given student id.
+ * If id is invalid then empty optional is returned.
+ *
+ * For matching valid id forms this function utilizes 
+ * parameter forms that is a Regexes object.
+ *
+ * Function tries to match each form and if it fits
+ * it extracts #1 and #2 groups.
+ *
+ * First is letter id and the second numerical part of id.
+ *
+ * If the Regexes are not passed to the function
+ * it utilizes by defult student_id_regexes.
+ *
+ * @param[in] id    : student id
+ * @param[in] forms : regexes
+ * @returns generated Student object
+ *
+**/
+std::optional<Student> parse_student(const std::string& id, Regexes forms = student_id_regexes) {
     // Invalid length
     if(id.size() < 8) return {};
 
-    std::smatch normalFormMatches;
-    std::smatch dashedFormMatches;
+    for(std::regex form : forms) {
+      std::smatch formMatches;
 
-    const bool isNormalForm = std::regex_search(id, normalFormMatches, student_id_form_normal);
-    const bool isDashedForm = std::regex_search(id, dashedFormMatches, student_id_form_dashed);
-
-    if(isNormalForm) {
-      std::cout << "MATCHED NORMAL FORM = "<<normalFormMatches[1].str()<<" | "<<normalFormMatches[2].str()<<" from "<<id<<"\n";
-      return { make_pair(dashedFormMatches[1].str(), normalFormMatches[2].str()) };
-    } else if(isDashedForm) {
-      std::cout << "MATCHED DASHED FORM = "<<dashedFormMatches[1].str()<<" | "<<dashedFormMatches[2].str()<<" from "<<id<<"\n";
-      return { make_pair(dashedFormMatches[1].str(), dashedFormMatches[2].str()) };
-    } else {
-      return {};
+      const bool isValidForm = std::regex_search(id, formMatches, form);
+      if(isValidForm) {
+        return { make_pair(formMatches[1].str(), formMatches[2].str()) };
+      }
     }
+    
+    // Nothing matches
+    // So this is invalid student id
+    return {};
 }
 
 bool verify_id(const std::string &id) {
@@ -93,7 +130,15 @@ void throw_if_false(const bool& pred) {
  * Then tries to parse the line using parse_student(string)
  * and finally saves the student data into the collection.
  *
- * @param[in] filename : const char*
+ * The function utilizes loading_error_handler as error handler.
+ * The handler is called for each invalid line.
+ * It receives the following parameters:
+ *   * filename      : string
+ *   * line number   : int
+ *   * line contents : string
+ *
+ * @param[in] filename              : const char*
+ * @param[in] loading_error_handler : (string, int, string)->void
  * @returns collection containing all valid student entries from file
  *
 **/
@@ -185,6 +230,8 @@ void fill_group(Group& group, const std::string& line) {
 	} while (line[guardian] == '+');
 	throw_if_false(line[guardian] == '\0');
 }
+
+
 /**
  * Reads groups of students from stdin using std::cin.
  * Verifies their validity, prints errors and saves all valid groups
@@ -245,7 +292,10 @@ void print_bad_students(const std::vector<Student> &students,
     }
 }
 
+// Application entry point
 int main(int argc, char **argv) {
+  
+    // Invalid number of command line parameters
     if (argc != 2) {
         print_usage_message(argv[0]);
         return 1;
