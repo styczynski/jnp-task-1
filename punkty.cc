@@ -19,8 +19,8 @@ const int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
 const int NUMBER_OF_FIRST_INPUT_LINE = 1;
 
 
-static const std::regex student_id_form_normal("^([a-z]{2}([0-9]{6}))$");
-static const std::regex student_id_form_dashed("^([a-z]{2}m-([0-9]{4}))$");
+static const std::regex student_id_form_normal("^([a-z]{2})([0-9]{6})$");
+static const std::regex student_id_form_dashed("^([a-z]{2})m-([0-9]{4})$");
 
 
 inline void print_usage_message(const std::string &program_name) {
@@ -64,11 +64,11 @@ std::optional<Student> parse_student(const std::string& id) {
     const bool isDashedForm = std::regex_search(id, dashedFormMatches, student_id_form_dashed);
 
     if(isNormalForm) {
-      std::cout << "MATCHED NORMAL FORM = "<<normalFormMatches[2].str()<<" | "<<dashedFormMatches[3].str()<<" from "<<id<<"\n";
-      return { make_pair(dashedFormMatches[2].str(), normalFormMatches[3].str()) };
+      std::cout << "MATCHED NORMAL FORM = "<<normalFormMatches[1].str()<<" | "<<normalFormMatches[2].str()<<" from "<<id<<"\n";
+      return { make_pair(dashedFormMatches[1].str(), normalFormMatches[2].str()) };
     } else if(isDashedForm) {
-      std::cout << "MATCHED DASHED FORM = "<<dashedFormMatches[2].str()<<" | "<<dashedFormMatches[3].str()<<" from "<<id<<"\n";
-      return { make_pair(dashedFormMatches[2].str(), dashedFormMatches[3].str()) };
+      std::cout << "MATCHED DASHED FORM = "<<dashedFormMatches[1].str()<<" | "<<dashedFormMatches[2].str()<<" from "<<id<<"\n";
+      return { make_pair(dashedFormMatches[1].str(), dashedFormMatches[2].str()) };
     } else {
       return {};
     }
@@ -111,9 +111,9 @@ std::vector<Student> read_student_list(const std::string& filename,
             const std::optional<Student> student = parse_student(input_line);
             if(student.has_value()) {
                 const Student student_value = student.value();
-                if(loaded_ids.find(std::get<0>(student_value)) == loaded_ids.end()) {
+                if(loaded_ids.find(input_line) == loaded_ids.end()) {
                     student_list.push_back(student_value);
-                    loaded_ids.insert(std::get<0>(student_value));
+                    loaded_ids.insert(input_line);
                 } else {
                     // Repeating ID
                     loading_error_handler(std::string(filename), line_number, input_line);
