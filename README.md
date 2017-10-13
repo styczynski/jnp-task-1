@@ -1,4 +1,4 @@
-# jnp-zad-1
+# JNP Task 1 (University of Warsaw)
 
 Contributors: 
 
