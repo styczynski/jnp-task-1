@@ -13,17 +13,11 @@
 typedef std::pair<std::string, std::string> Student;
 typedef std::vector<Student> Group;
 typedef bool LineError;
+typedef bool InvalidFileException;
 
 const int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
 const int NUMBER_OF_FIRST_INPUT_LINE = 1;
 
-///idk if this will be accepted since we can't define new classes :(
-class InvalidFileException : public std::exception {
-public:
-   const char * what () const throw () {
-      return "File is unreachable or not exists. Could not open it.";
-   }
-};
 
 static const std::regex student_id_form_normal("^([a-z]{2}([0-9]{6}))$");
 static const std::regex student_id_form_dashed("^([a-z]{2}m-([0-9]{4}))$");
@@ -59,7 +53,7 @@ inline static constexpr bool is_low_case_letter(const char& c) {
 }
 
 
-std::optional<std::string> get_student_id(const std::string& id) {
+std::optional<Student> parse_student(const std::string& id) {
     // Invalid length
     if(id.size() < 8) return {};
 
@@ -70,27 +64,18 @@ std::optional<std::string> get_student_id(const std::string& id) {
     const bool isDashedForm = std::regex_search(id, dashedFormMatches, student_id_form_dashed);
 
     if(isNormalForm) {
-      //std::cout << "MATCHED NORMAL FORM = "<<normalFormMatches[2].str()<<" from "<<id<<"\n";
-      return {normalFormMatches[2].str()};
+      std::cout << "MATCHED NORMAL FORM = "<<normalFormMatches[2].str()<<" | "<<dashedFormMatches[3].str()<<" from "<<id<<"\n";
+      return { make_pair(dashedFormMatches[2].str(), normalFormMatches[3].str()) };
     } else if(isDashedForm) {
-      //std::cout << "MATCHED DASHED FORM = "<<dashedFormMatches[2].str()<<" from "<<id<<"\n";
-      return {dashedFormMatches[2].str()};
+      std::cout << "MATCHED DASHED FORM = "<<dashedFormMatches[2].str()<<" | "<<dashedFormMatches[3].str()<<" from "<<id<<"\n";
+      return { make_pair(dashedFormMatches[2].str(), dashedFormMatches[3].str()) };
     } else {
       return {};
     }
 }
 
 bool verify_id(const std::string &id) {
-    return get_student_id(id).has_value();
-}
-
-std::optional<Student> parse_student(const std::string &id) {
-    const auto student_id = get_student_id(id);
-    if(student_id.has_value()) {
-      return std::optional<Student>(make_pair(id, student_id.value()));
-    } else {
-      return {};
-    }
+    return parse_student(id).has_value();
 }
 
 /**
@@ -156,7 +141,11 @@ std::vector<Student> read_student_list(const std::string& filename,
  */
 void check_basic_group_validity(const std::string &line) {
     throw_if_false(
-			line.substr(0, 5) == "grupa" &&
+      //
+			// TODO Hej :) Wez uzyj is_in_range skoro powstalo XD
+      // ok?
+      //
+      line.substr(0, 5) == "grupa" &&
 			line[5] >= '1' &&
 			line[5] <= '8' &&
 			line[6] == '/' &&
@@ -185,7 +174,7 @@ auto merge_pair(const std::pair<T, T>& pair) -> decltype(pair.first + pair.secon
  * into the group while checking line correctness.
  * @param[in] : const Group&, const std::string&
  */
-void fill_group(const Group& group, const std::string& line) {
+void fill_group(Group& group, const std::string& line) {
 	size_t guardian = INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP;
 	do {
 		guardian++;
