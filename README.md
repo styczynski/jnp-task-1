@@ -207,6 +207,8 @@ but may contain a subdirectory `"private"` where you can place other files, such
 Files placed in subdirectories are not evaluated.
 Do not place in the repository large, binary, temporary or any other way unnecessary files.
 
+**English translation done by @styczynski (MIT license)**
+
 ## Opis zadania
 
 ### Zadanie punkty
@@ -406,5 +408,3 @@ powinien zawierać innych plików, ale może zawierać podkatalog `"private"`, g
 można umieszczaą różne pliki, np. swoje testy. Pliki umieszczone w tym
 podkatalogu nie bądą oceniane. Nie wolno umieszczać w repozytorium plików
 dużych, binarnych, tymczasowych ani innych zbędnych.
-
-**English translation done by @styczynski (MIT license)**
