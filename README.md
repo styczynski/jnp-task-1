@@ -15,18 +15,18 @@ Run `make clean` to clean compilation files.
 
 ### Task "Points"
 
-This year, we introduced in this subject negative points for multiple
-cooperation with the same person.
+This year we introduced negative points for multiple
+cooperation with the same person during this course .
 To better understand the principle of disposing negative points bonus
 and help us calculate them, please write the appropriate program.
 
 ### Functional requirements
 
-The program is called with one argument, which is the file name
-It contains student IDs participating in the assignments.
+The program is called with one argument, which is the name of the file
+containing IDs of the students participating in the assignments.
 Each Identifier is placed in a separate line.
 The correct student ID consists of two lower case letters of the English alphabet and six digits
-or two small letters of English alphabet, letter m, hyphen and four digits.
+or two small letters of English alphabet, letter m, a hyphen and four digits.
 
 After loading a list of student IDs from the file, the program reads from
 standard input descriptions of teams that solved individual tasks.
