@@ -31,12 +31,12 @@ typedef std::vector<std::regex> Regexes;
 namespace {
 
 // Constants
-    const int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
-    const int NUMBER_OF_FIRST_INPUT_LINE = 1;
+    const unsigned int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
+    const unsigned int NUMBER_OF_FIRST_INPUT_LINE = 1;
     const Regexes STUDENT_ID_REGEXES = {
             std::regex("^([a-z]{2})([0-9]{6})$"),
             std::regex("^([a-z]{2})m-([0-9]{4})$")
-    };
+    }; // my IDE warns about exceptions that cannot be caught when initializing this way
 
 //
 // Error printing functions
@@ -47,15 +47,15 @@ namespace {
     }
 
     inline void print_error_with_file(const std::string &filename) {
-        std::cout << "Error: problem with file " << filename << "\n";
+        std::cerr << "Error: problem with file " << filename << "\n";
     }
 
     inline void print_error_in_cin(unsigned int line_number, const std::string &line) {
-        std::cout << "Error in cin, line " << line_number << ": " << line << "\n";
+        std::cerr << "Error in cin, line " << line_number << ": " << line << "\n";
     }
 
     inline void print_error_in_file(const std::string &filename, unsigned int line_number, const std::string &line) {
-        std::cout << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
+        std::cerr << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
     }
 
 //
@@ -94,6 +94,7 @@ namespace {
         return is_in_range(c, 'a', 'z');
     }
 
+    // Should consider removing the above two if we are using regex.
 
     /**
      * Generates Student object from given student id.
@@ -223,9 +224,10 @@ namespace {
      * @param[in] : const std::pair<T, T>&
      * @returns pair.first + pair.second
      */
-    template<typename T>
-    auto merge_pair(const std::pair<T, T> &pair) -> decltype(pair.first + pair.second) {
-        T first, second;
+    template<typename T1, typename T2>
+    auto merge_pair(const std::pair<T1, T2> &pair) -> decltype(pair.first + pair.second) {
+        T1 first;
+        T2 second;
         std::tie(first, second) = std::move_if_noexcept(pair);
         return second + second;
     }
@@ -247,6 +249,14 @@ namespace {
         throw_if_false(line[guardian] == '\0');
     }
 
+    /**
+     * Given a Student, the function returns their id.
+     *
+     * @param[in]
+     */
+    inline std::string get_student_id(const Student &student) {
+        return student.second;
+    }
 
     /**
      * Reads groups of students from stdin using std::cin.
@@ -257,7 +267,6 @@ namespace {
      * @returns correct groups of students
      */
     std::vector<Group> read_groups(const std::vector<Student> &students_vector) {
-        // TODO joald
         std::set<Student, std::function<bool(const Student &, const Student &)>>
                 students(students_vector.begin(), students_vector.end(),
                          [](const Student &left_student, const Student &right_student) {
@@ -266,7 +275,7 @@ namespace {
                                     left_student.first.size() > right_student.first.size();
                          });
         std::string line;
-        unsigned int line_number = NUMBER_OF_FIRST_INPUT_LINE;
+        auto line_number = NUMBER_OF_FIRST_INPUT_LINE;
         std::vector<Group> result;
         while (std::getline(std::cin, line)) {
             try {
@@ -298,14 +307,28 @@ namespace {
      */
     void print_bad_students(const std::vector<Student> &students,
                             const std::vector<Group> &groups) {
-        std::vector<int> deducted_points(students.size());
+        std::map<const Student *, unsigned long> deducted_points;
+        auto search = [&](const Student &student) {
+            Group cooperators;
+            for (const auto &i : groups) {
+                if (std::find(i.begin(), i.end(), student) != i.end()) {
+                    for (const auto &j : i) {
+                        if (j != student) {
+                            cooperators.push_back(j);
+                        }
+                    }
+                }
+            }
+            auto points = cooperators.size() -
+                          std::distance(cooperators.begin(), std::unique(cooperators.begin(), cooperators.end()));
+            if (points > 0) {
+                deducted_points.insert({&student, points});
+            }
+        };
+        std::for_each(students.begin(), students.end(), search);
 
-        // TODO implement the rest
-
-        for (int i = 0; i < (signed) deducted_points.size(); ++i) {
-            std::string current_id;
-            std::tie(std::ignore, current_id) = students[i];
-            std::cout << current_id << ";" << deducted_points[i] << ";\n";
+        for (auto &i : deducted_points) {
+            std::cout << get_student_id(*(i.first)) << ";" << i.second << ";\n";
         }
     }
 
