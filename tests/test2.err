@@ -10,14 +10,16 @@ Error in ./tests/students.id, line 15: #
 Error in ./tests/students.id, line 16: ąą
 Error in ./tests/students.id, line 17: ps00000x
 Error in ./tests/students.id, line 18: : : :
-Error in cin, line 4: grupa2/zadanie2/gh444444 + ij555555
-Error in cin, line 5: pr999999
-Error in cin, line 6: cd222222
-Error in cin, line 7: cd222222
-Error in cin, line 7: cd222222
+Error in cin, line 1: grupa1/zadanie1/
+Error in cin, line 2: grupa1/zadanie1/ab111111
+Error in cin, line 6: grupa2/zadanie2/gh444444 + ij555555
+Error in cin, line 7: pr999999
 Error in cin, line 8: cd222222
 Error in cin, line 9: cd222222
-Error in cin, line 9: pr999999
-Error in cin, line 10: pr999999
-Error in cin, line 10: pr999999
-Error in cin, line 10: pr999999
+Error in cin, line 9: cd222222
+Error in cin, line 10: cd222222
+Error in cin, line 11: cd222222
+Error in cin, line 11: pr999999
+Error in cin, line 12: pr999999
+Error in cin, line 12: pr999999
+Error in cin, line 12: pr999999
