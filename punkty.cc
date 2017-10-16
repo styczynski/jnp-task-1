@@ -26,6 +26,7 @@
 typedef std::pair<std::string, std::string> Student;
 typedef std::vector<Student> Group;
 typedef bool LineError;
+typedef std::string IndexError;
 typedef bool InvalidFileException;
 typedef std::vector<std::string> Regexes;
 
@@ -54,7 +55,11 @@ namespace {
     inline void print_error_in_cin(unsigned int line_number, const std::string &line) {
         std::cerr << "Error in cin, line " << line_number << ": " << line << "\n";
     }
-
+	
+	inline void print_error_with_id(unsigned int line_number, const std::string &id) {
+        std::cerr << "Error in cin, line " << line_number << ": " << id << "\n";
+    }
+	
     inline void print_error_in_file(const std::string &filename, unsigned int line_number, const std::string &line) {
         std::cerr << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
     }
@@ -134,10 +139,6 @@ namespace {
         // Nothing matches
         // So this is invalid student id
         return {};
-    }
-
-    bool verify_id(const std::string &id) {
-        return parse_student(id).has_value();
     }
 
     /**
@@ -239,13 +240,17 @@ namespace {
      * into the group while checking line correctness.
      * @param[in] : const Group&, const std::string&
      */
-    void fill_group(Group &group, const std::string &line) {
+    void fill_group(Group &group, const std::string &line, int line_number) {
         size_t guardian = INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP;
         do {
             guardian++;
             auto current_id = line.substr(guardian, 8);
-            throw_if_false(verify_id(current_id));
-            group.push_back(parse_student(current_id).value());
+            auto newStudent = parse_student(current_id);
+            if (!newStudent.has_value()){
+				print_error_with_id(line_number, current_id);
+			} else {
+				group.push_back(newStudent.value());
+			}
             guardian += 8;
         } while (line[guardian] == '+');
         throw_if_false(line[guardian] == '\0');
@@ -284,7 +289,7 @@ namespace {
             try {
                 check_basic_group_validity(line);
                 Group group;
-                fill_group(group, line);
+                fill_group(group, line, line_number);
                 Group final_group;
                 for (auto it = group.begin(); it != group.end(); ++it) {
                     if (students.find(*it) == students.end() ||
