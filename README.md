@@ -10,6 +10,7 @@ Contributors:
 Please run `make` to build everything.
 Run `make rebuild` to force rebuild.
 Run `make clean` to clean compilation files.
+Run `make test` to perform tests.
 
 ## Task Description
 
