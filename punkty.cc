@@ -18,6 +18,7 @@
 #include <regex>
 #include <exception>
 #include <functional>
+#include <map>
 
 //
 // Types definitions
@@ -248,6 +249,7 @@ namespace {
             guardian += 8;
         } while (line[guardian] == '+');
         throw_if_false(line[guardian] == '\0');
+        throw_if_false(group.size() == 2 || group.size() == 3);
     }
 
     /**
