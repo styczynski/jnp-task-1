@@ -232,7 +232,7 @@ namespace {
         T1 first;
         T2 second;
         std::tie(first, second) = std::move_if_noexcept(pair);
-        return second + second;
+        return first + second;
     }
 
     /**
@@ -242,12 +242,13 @@ namespace {
      */
     void fill_group(Group &group, const std::string &line, int line_number) {
         size_t guardian = INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP;
+        std::vector<std::string> bad_ids;
         do {
             guardian++;
             auto current_id = line.substr(guardian, 8);
             auto newStudent = parse_student(current_id);
             if (!newStudent.has_value()){
-				print_error_with_id(line_number, current_id);
+				bad_ids.push_back(current_id);
 			} else {
 				group.push_back(newStudent.value());
 			}
@@ -255,6 +256,9 @@ namespace {
         } while (line[guardian] == '+');
         throw_if_false(line[guardian] == '\0');
         throw_if_false(group.size() == 2 || group.size() == 3);
+        for (auto& i : bad_ids) {
+			print_error_with_id(line_number, i);
+		}
     }
 
     /**
