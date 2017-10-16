@@ -26,7 +26,7 @@ typedef std::pair<std::string, std::string> Student;
 typedef std::vector<Student> Group;
 typedef bool LineError;
 typedef bool InvalidFileException;
-typedef std::vector<std::regex> Regexes;
+typedef std::vector<std::string> Regexes;
 
 namespace {
 
@@ -34,9 +34,9 @@ namespace {
     const unsigned int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
     const unsigned int NUMBER_OF_FIRST_INPUT_LINE = 1;
     const Regexes STUDENT_ID_REGEXES = {
-            std::regex("^([a-z]{2})([0-9]{6})$"),
-            std::regex("^([a-z]{2})m-([0-9]{4})$")
-    }; // my IDE warns about exceptions that cannot be caught when initializing this way
+            "^([a-z]{2})([0-9]{6})$"
+            "^([a-z]{2})(m-[0-9]{4})$"
+    };
 
 //
 // Error printing functions
@@ -120,7 +120,8 @@ namespace {
         // Invalid length
         if (id.size() < 8) return {};
 
-        for (const auto &form : forms) {
+        for (const auto &stringForm : forms) {
+            std::regex form(stringForm);
             std::smatch formMatches;
 
             const bool isValidForm = std::regex_search(id, formMatches, form);
