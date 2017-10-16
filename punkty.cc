@@ -34,7 +34,7 @@ namespace {
     const unsigned int INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP = 15;
     const unsigned int NUMBER_OF_FIRST_INPUT_LINE = 1;
     const Regexes STUDENT_ID_REGEXES = {
-            "^([a-z]{2})([0-9]{6})$"
+            "^([a-z]{2})([0-9]{6})$",
             "^([a-z]{2})(m-[0-9]{4})$"
     };
 
