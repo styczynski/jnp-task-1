@@ -15,9 +15,9 @@ rebuild: clean all
 test: all test-punkty
 	$(info Testing done..)
 	
-test-punkty: ./punkty ./_test_1.file
+test-punkty: ./punkty
 	$(info Testing punkty...)
-	$(info $(shell ./punkty _test_1.file))
+	@bash ./tests/utest.sh --tneed-err "./punkty ./tests/students.id" ./tests
 	@touch ./punkty
 
 .PHONY: all clean test
