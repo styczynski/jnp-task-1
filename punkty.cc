@@ -333,8 +333,19 @@ namespace {
                     }
                 }
             }
-            auto points = cooperators.size() -
-                          std::distance(cooperators.begin(), std::unique(cooperators.begin(), cooperators.end()));
+            std::sort(cooperators.begin(), cooperators.end());
+            auto points = 0;
+            Student last = {"", ""};
+            auto occurences = 1;
+            for (auto& i : cooperators) {
+                if (i == last) {
+                    occurences++;
+                } else {
+                    occurences = 1;
+                }
+                points += occurences - 1;
+                last = i;
+            }
             if (points > 0) {
                 deducted_points.insert({&student, points});
             }
