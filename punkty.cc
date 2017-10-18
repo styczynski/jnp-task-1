@@ -240,7 +240,7 @@ namespace {
      * into the group while checking line correctness.
      * @param[in] : const Group&, const std::string&
      */
-    void fill_group(Group &group, const std::string &line, int line_number) {
+    void fill_group(Group &group, const std::string &line, unsigned int line_number) {
         size_t guardian = INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP;
         std::vector<std::string> bad_ids;
         do {
