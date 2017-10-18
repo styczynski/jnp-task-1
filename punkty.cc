@@ -241,23 +241,16 @@ namespace {
      */
     void fill_group(Group &group, const std::string &line, unsigned int line_number) {
         size_t guardian = INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP;
-        std::vector<std::string> bad_ids;
         do {
             guardian++;
             auto current_id = line.substr(guardian, 8);
             auto newStudent = parse_student(current_id);
-            if (!newStudent.has_value()){
-				bad_ids.push_back(current_id);
-			} else {
-				group.push_back(newStudent.value());
-			}
-            guardian += 8;
+            throw_if_false(newStudent.has_value());
+			group.push_back(newStudent.value());
+			guardian += 8;
         } while (line[guardian] == '+');
         throw_if_false(line[guardian] == '\0');
         throw_if_false(group.size() == 2 || group.size() == 3);
-        for (auto& i : bad_ids) {
-			print_error_with_id(line_number, i);
-		}
     }
 
     /**
@@ -335,14 +328,14 @@ namespace {
             std::sort(cooperators.begin(), cooperators.end());
             auto points = 0;
             Student last = {"", ""};
-            auto occurences = 1;
+            auto occurrences = 1;
             for (auto& i : cooperators) {
                 if (i == last) {
-                    occurences++;
+                    occurrences++;
                 } else {
-                    occurences = 1;
+                    occurrences = 1;
                 }
-                points += occurences - 1;
+                points += occurrences - 1;
                 last = i;
             }
             if (points > 0) {
