@@ -296,11 +296,9 @@ namespace {
                 fill_group(group, line, line_number);
                 Group final_group;
                 for (auto it = group.begin(); it != group.end(); ++it) {
-                    
-                    if (students.find(*it) == students.end() ||
-                        std::find(it + 1, group.end(), *it) != group.end() ||
+                    if (std::find(it + 1, group.end(), *it) != group.end() ||
                         std::find(students_vector.begin(), students_vector.end(), *it) == students_vector.end()) {
-                        print_error_in_cin(line_number, merge_pair(*it));
+                        print_error_with_id(line_number, merge_pair(*it));
                     } else {	
                         final_group.push_back(*it);
                     }
