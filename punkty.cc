@@ -168,12 +168,11 @@ namespace {
      * @returns collection containing all valid student entries from file
      *
     **/
-    std::vector<Student> read_student_list(const std::string &filename,
-                                           const std::function<void(std::string, int,
-                                                                    std::string)> &loading_error_handler) {
+    std::vector<Student> read_student_list(
+	const std::string &filename,
+        const std::function<void(std::string, int, std::string)> &loading_error_handler) {
         std::vector<Student> student_list;
         std::ifstream input_stream(filename);
-
         std::set<std::string> loaded_ids;
 
         if (input_stream.is_open()) {
@@ -190,7 +189,7 @@ namespace {
                         // Repeating ID
                         loading_error_handler(std::string(filename), line_number, input_line);
                     }
-                } else {
+                } else if (input_line != "") {
                     // Invalid ID
                     loading_error_handler(std::string(filename), line_number, input_line);
                 }
@@ -305,7 +304,9 @@ namespace {
                 }
                 result.push_back(final_group);
             } catch (LineError e) {
-                print_error_in_cin(line_number, line);
+                if (line != "") {
+			print_error_in_cin(line_number, line);
+		}
             }
             line_number++;
         }
