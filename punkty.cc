@@ -39,6 +39,7 @@ namespace {
             "^([a-z]{2})([0-9]{6})$",
             "^([a-z]{2})(m-[0-9]{4})$"
     };
+    const std::string GROUP_BEGINNING_REGEX = "grupa[1-8]\\/zadanie[1-6]\\/";
 
 //
 // Error printing functions
@@ -55,11 +56,11 @@ namespace {
     inline void print_error_in_cin(unsigned int line_number, const std::string &line) {
         std::cerr << "Error in cin, line " << line_number << ": " << line << "\n";
     }
-	
-	inline void print_error_with_id(unsigned int line_number, const std::string &id) {
+
+    inline void print_error_with_id(unsigned int line_number, const std::string &id) {
         std::cerr << "Error in cin, line " << line_number << ": " << id << "\n";
     }
-	
+
     inline void print_error_in_file(const std::string &filename, unsigned int line_number, const std::string &line) {
         std::cerr << "Error in " << filename << ", line " << line_number << ": " << line << "\n";
     }
@@ -69,38 +70,29 @@ namespace {
 //
 
     /**
-     * For a given tree values - value, min, max of type T.
-     * Checks if value is in boundaries defined by min and max.
+     * Checks if a string contains only whitespace characters.
      *
-     * @param[in] value : T
-     * @param[in] min   : T
-     * @param[in] max   : T
-     * @returns If min <= value <= max?
-    **/
-    template<typename T>
-    inline constexpr bool is_in_range(const T &value, const T min, const T max) {
-        return value == std::clamp(value, min, max);
+     * @param string : The string to process
+     * @return if string is blank
+     */
+    inline bool contains_only_whitespace(const std::string &string) {
+        return std::count_if(string.begin(), string.end(), [](unsigned char c){ return !std::isspace(c); }) == 0;
     }
 
     /**
-     * Checks if given character is digit (ASCII).
+     * Checks if an unspecified container supporting standard C++ iterators and
+     * methods begin() and end() contains a specific value.
      *
-     * @returns logic value
-    **/
-    inline constexpr bool is_digit(const char &c) {
-        return is_in_range(c, '0', '9');
+     * @tparam T1 : The type of the container within which the search is performed.
+     * @tparam T2 : The type held in the container, or a base class thereof.
+     * @param container : The container within which the search is performed.
+     * @param value : The value searched for.
+     * @return if container contains value
+     */
+    template<typename T1, typename T2>
+    inline bool contains(const T1 &container, const T2 &value) {
+        return std::find(container.begin(), container.end(), value) != container.end();
     }
-
-    /**
-     * Checks if given character is low case latin letter (ASCII).
-     *
-     * @returns logic value
-    **/
-    inline constexpr bool is_low_case_letter(const char &c) {
-        return is_in_range(c, 'a', 'z');
-    }
-
-    // Should consider removing the above two if we are using regex.
 
     /**
      * Generates Student object from given student id.
@@ -169,8 +161,8 @@ namespace {
      *
     **/
     std::vector<Student> read_student_list(
-	const std::string &filename,
-        const std::function<void(std::string, int, std::string)> &loading_error_handler) {
+            const std::string &filename,
+            const std::function<void(std::string, int, std::string)> &loading_error_handler) {
         std::vector<Student> student_list;
         std::ifstream input_stream(filename);
         std::set<std::string> loaded_ids;
@@ -182,14 +174,14 @@ namespace {
                 const std::optional<Student> student = parse_student(input_line);
                 if (student.has_value()) {
                     const Student &student_value = student.value();
-                    if (loaded_ids.find(input_line) == loaded_ids.end()) {
+                    if (!contains(loaded_ids, input_line)) {
                         student_list.push_back(student_value);
                         loaded_ids.insert(input_line);
                     } else {
                         // Repeating ID
                         loading_error_handler(std::string(filename), line_number, input_line);
                     }
-                } else if (input_line != "") {
+                } else /*if (!contains_only_whitespace(input_line))*/ {
                     // Invalid ID
                     loading_error_handler(std::string(filename), line_number, input_line);
                 }
@@ -211,13 +203,9 @@ namespace {
      * @returns if line is valid
      */
     void check_basic_group_validity(const std::string &line) {
-        throw_if_false(
-                line.substr(0, 5) == "grupa" &&
-                is_in_range(line[5], '1', '8') &&
-                line[6] == '/' &&
-                line.substr(7, 7) == "zadanie" &&
-                is_in_range(line[14], '1', '6') &&
-                line[15] == '/');
+        std::regex group_beginning_regex(GROUP_BEGINNING_REGEX);
+        std::smatch dummy;
+        throw_if_false(std::regex_search(line, dummy, group_beginning_regex));
     }
 
     /**
@@ -239,15 +227,15 @@ namespace {
      * into the group while checking line correctness.
      * @param[in] : const Group&, const std::string&
      */
-    void fill_group(Group &group, const std::string &line, unsigned int line_number) {
+    void fill_group(Group &group, const std::string &line) {
         size_t guardian = INDEX_OF_FIRST_INDEX_NUMBER_IN_GROUP;
         do {
             guardian++;
             auto current_id = line.substr(guardian, 8);
             auto newStudent = parse_student(current_id);
             throw_if_false(newStudent.has_value());
-			group.push_back(newStudent.value());
-			guardian += 8;
+            group.push_back(newStudent.value());
+            guardian += 8;
         } while (line[guardian] == '+');
         throw_if_false(line[guardian] == '\0');
         throw_if_false(group.size() == 2 || group.size() == 3);
@@ -270,36 +258,29 @@ namespace {
      * @param[in] std::vector of known students
      * @returns correct groups of students
      */
-    std::vector<Group> read_groups(const std::vector<Student> &students_vector) {
-        std::set<Student, std::function<bool(const Student &, const Student &)>>
-                students(students_vector.begin(), students_vector.end(),
-                         [](const Student &left_student, const Student &right_student) {
-                             return left_student.first.size() == right_student.first.size() ?
-                                    left_student.second.size() > right_student.second.size() :
-                                    left_student.first.size() > right_student.first.size();
-                         });
+    std::vector<Group> read_groups(const Group &students) {
         std::string line;
         auto line_number = NUMBER_OF_FIRST_INPUT_LINE;
         std::vector<Group> result;
         while (std::getline(std::cin, line)) {
             try {
-                check_basic_group_validity(line);
+                check_basic_group_validity(line.substr(0, 16));
                 Group group;
-                fill_group(group, line, line_number);
+                fill_group(group, line);
                 Group final_group;
                 for (auto it = group.begin(); it != group.end(); ++it) {
                     if (std::find(it + 1, group.end(), *it) != group.end() ||
-                        std::find(students_vector.begin(), students_vector.end(), *it) == students_vector.end()) {
+                        !contains(students, *it)) {
                         print_error_with_id(line_number, merge_pair(*it));
-                    } else {	
+                    } else {
                         final_group.push_back(*it);
                     }
                 }
                 result.push_back(final_group);
             } catch (LineError e) {
-                if (line != "") {
-			print_error_in_cin(line_number, line);
-		}
+                //if (!contains_only_whitespace(line)) {
+                    print_error_in_cin(line_number, line);
+                //}
             }
             line_number++;
         }
@@ -317,7 +298,7 @@ namespace {
         auto search = [&](const Student &student) {
             Group cooperators;
             for (const auto &i : groups) {
-                if (std::find(i.begin(), i.end(), student) != i.end()) {
+                if (contains(i, student)) {
                     for (const auto &j : i) {
                         if (j != student) {
                             cooperators.push_back(j);
@@ -329,7 +310,7 @@ namespace {
             auto points = 0;
             Student last = {"", ""};
             auto occurrences = 1;
-            for (auto& i : cooperators) {
+            for (auto &i : cooperators) {
                 if (i == last) {
                     occurrences++;
                 } else {
