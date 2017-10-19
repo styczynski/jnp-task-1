@@ -117,7 +117,6 @@ invalid and program should print them in output messages.
 List of student IDs in _test_1.file:
 
 ```
-
 ab111111
 cd222222
 ef333333
@@ -126,7 +125,7 @@ ij555555
 ab111111
 ab01234
 cab12345
-ZZM-1000
+zzm-1000
 
 ```
 
@@ -228,7 +227,7 @@ i szejściu cyfr albo z dwóch małych liter alfabetu angielskiego, litery m, ł
 i czterech cyfr.
 
 Po wczytaniu z pliku listy identyfikatorów studentów program
-czyta ze standardowego wejłcia opisy zespołów,
+czyta ze standardowego wejścia opisy zespołów,
 które rozwiązywały poszczególne zadania.
 Każdy opis znajduje sią w osobnej linii.
 Poprawny opis zespołu składa sią ze słowa grupa, numeru grupy,
@@ -243,10 +242,10 @@ kodem wykonania 0. Każda wypisywana linia składa sią z numeru indeksu student
 i średnika.
 Wypisywane dane są posortowane według numerów indeksów.
 
-### Obsługa błądów
+### Obsługa błędów
 
-Program musi byą odporny na niezgodności danych wejściowych ze specyfikacją.
-Opisane poniżej komunikaty o błądach powinny byą wypisywane na standardowe
+Program musi być odporny na niezgodności danych wejściowych ze specyfikacją.
+Opisane poniżej komunikaty o błędach powinny być wypisywane na standardowe
 wyjście błędów.
 
 Jeśli program został wywołany ze złą liczbą parametrów, powinien wypisać
@@ -255,7 +254,7 @@ komunikat:
 ` Usage: PROGRAM file `
 
 gdzie `PROGRAM` jest nazwą programu, jaką podano w linii poleceń
-(zerowy argument przekazany do funkcji main), a nastąpnie zakołczyć sią z kodem 1.
+(zerowy argument przekazany do funkcji main), a nastąpnie zakończyć się kodem 1.
 
 Jeśli program nie może otworzyć pliku o nazwie podanej jako argument lub
 wystąpił jakiś inny błąd związany z obsługą pliku, powinien wypisać komunikat:
@@ -263,7 +262,7 @@ wystąpił jakiś inny błąd związany z obsługą pliku, powinien wypisać kom
 ` Error: problem with file PLIK `
 
 gdzie `PLIK` jest nazwą pliku
-(pierwszy argument przekazany do funkcji main), a nastąpnie zakołczyć sią z kodem 1.
+(pierwszy argument przekazany do funkcji main), a nastąpnie zakończyć się kodem 1.
 
 Dla każdej czytanej z pliku linii, która nie zawiera poprawnego identyfikatora
 studenta, program powinien wypisać komunikat:
@@ -282,10 +281,10 @@ powinien wypisać komunikat:
 gdzie `PLIK` jest nazwą pliku, `N` jest numerem wiersza, a `IDENTYFIKATOR` to
 powtórzony identyfikator studenta.
 
-Program wypisuje komunikaty o błądnych liniach w pliku w kolejnołci numerów
+Program wypisuje komunikaty o błędnych liniach w pliku w kolejności numerów
 linii.
 
-Dla każdej czytanej ze standardowego wejłcia linii, która nie zawiera poprawnego
+Dla każdej czytanej ze standardowego wejścia linii, która nie zawiera poprawnego
 opisu zespołu, program powinien wypisaą komunikat:
 
 ` Error in cin, line N: TEKST `
