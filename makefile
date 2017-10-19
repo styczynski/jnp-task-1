@@ -17,7 +17,7 @@ test: test-punkty
 	
 test-punkty: ./punkty
 	$(info Testing punkty...)
-	@bash  ./tests/utest.sh --tgout "\$$input_file_folder/moj_sort.out" --tierr --tpipe-out "./tests/sortuj_out \$$input \$$output" "echo \$$input_file_folder/idFile" "./tests/*/lineFile"
-	@touch ./punkty
+	@bash  ./tests/utest.sh --tgout "\$$input_file_folder/moj_sort.out" --tpipe-out "./tests/sortuj_out \$$input \$$output" "./punkty \$$input_file_folder/idFile" "./tests/*/lineFile"
+  @touch ./punkty
 
 .PHONY: all clean test

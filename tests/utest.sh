@@ -756,6 +756,11 @@ function test_err {
 
 function evalspec {
   code="${1/\%/\$}"
+  eval $code
+}
+
+function evalspecplain {
+  code="${1/\%/\$}"
   eval echo $code
 }
 
@@ -1475,8 +1480,8 @@ do
       #
       flag_good_out_path_unparsed=$flag_good_out_path
       flag_good_err_path_unparsed=$flag_good_err_path
-      flag_good_out_path=$(evalspec "$flag_good_out_path")
-      flag_good_err_path=$(evalspec "$flag_good_err_path")
+      flag_good_out_path=$(evalspecplain "$flag_good_out_path")
+      flag_good_err_path=$(evalspecplain "$flag_good_err_path")
       
       if [[ "$flag_good_out_path" != "$flag_good_out_path_unparsed" ]]; then
         good_out_path="$flag_good_out_path"
@@ -1524,7 +1529,7 @@ do
       
       
       param_prog="$prog"
-      param_prog_eval=$(evalspec "$param_prog")
+      param_prog_eval=$(evalspecplain "$param_prog")
       param_prog="$param_prog_eval"
       
       return_buffer=""
