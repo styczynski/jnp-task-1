@@ -754,6 +754,11 @@ function test_err {
   fi
 }
 
+function evalspec {
+  code="${1/\%/\$}"
+  eval echo $code
+}
+
 #
 # Usage: load_prop_variable <variable_prefix> <variable_name> <output_variable>
 #
@@ -781,7 +786,7 @@ function load_global_configuration_file {
     #printf "LOAD GLOBAL CONFIURATION FILE ${global_configuration_file_path}\n"
     configuration_parsed_setup=$(parse_yaml "${global_configuration_file_path}" "global_config_" "false")
     
-    eval $configuration_parsed_setup
+    evalspec "$configuration_parsed_setup"
    
     
     if [[ "$global_config_executions_" != "" ]]; then
@@ -819,7 +824,7 @@ function load_single_test_configuration_file {
     #printf "CONFIG:\n"
     #printf "$configuration_parsed_setup\n"
     
-    eval $configuration_parsed_setup
+    evalspec "$configuration_parsed_setup"
     
     load_prop_variable "${config_prefix}" "args" "input_prog_flag_acc"
     load_prop_variable "${config_prefix}" "executable" "param_prog"
@@ -1172,7 +1177,7 @@ function run_program_pipe {
       #
       # Pipe file from $input -> to $output
       #
-      eval $pipe
+      evalspec "$pipe"
       
       # Copy result back from output to input
       # then remove output file
@@ -1470,8 +1475,8 @@ do
       #
       flag_good_out_path_unparsed=$flag_good_out_path
       flag_good_err_path_unparsed=$flag_good_err_path
-      flag_good_out_path=$(eval echo $flag_good_out_path)
-      flag_good_err_path=$(eval echo $flag_good_err_path)
+      flag_good_out_path=$(evalspec "$flag_good_out_path")
+      flag_good_err_path=$(evalspec "$flag_good_err_path")
       
       if [[ "$flag_good_out_path" != "$flag_good_out_path_unparsed" ]]; then
         good_out_path="$flag_good_out_path"
@@ -1519,7 +1524,7 @@ do
       
       
       param_prog="$prog"
-      param_prog_eval=$(eval echo $param_prog)
+      param_prog_eval=$(evalspec "$param_prog")
       param_prog="$param_prog_eval"
       
       return_buffer=""
