@@ -70,16 +70,6 @@ namespace {
 //
 
     /**
-     * Checks if a string contains only whitespace characters.
-     *
-     * @param string : The string to process
-     * @return if string is blank
-     */
-    inline bool contains_only_whitespace(const std::string &string) {
-        return std::count_if(string.begin(), string.end(), [](unsigned char c){ return !std::isspace(c); }) == 0;
-    }
-
-    /**
      * Checks if an unspecified container supporting standard C++ iterators and
      * methods begin() and end() contains a specific value.
      *
@@ -181,7 +171,7 @@ namespace {
                         // Repeating ID
                         loading_error_handler(std::string(filename), line_number, input_line);
                     }
-                } else /*if (!contains_only_whitespace(input_line))*/ {
+                } else if (!input_line.empty()) {
                     // Invalid ID
                     loading_error_handler(std::string(filename), line_number, input_line);
                 }
@@ -278,9 +268,9 @@ namespace {
                 }
                 result.push_back(final_group);
             } catch (LineError e) {
-                //if (!contains_only_whitespace(line)) {
+                if (!line.empty()) {
                     print_error_in_cin(line_number, line);
-                //}
+                }
             }
             line_number++;
         }
