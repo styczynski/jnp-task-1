@@ -1,2 +1,0 @@
-bash  ./tests/utest.sh --tierr "echo #input_file_folder/idFile" "./tests/*/lineFile"
-	
