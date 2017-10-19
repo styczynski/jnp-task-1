@@ -1438,11 +1438,6 @@ do
     else
       flag_additional_test_name_info=""
     fi
-    param_prog="$prog"
-    
-    
-    param_prog_eval=$(eval echo $param_prog)
-    param_prog="$param_prog_eval"
     
     #printf "Evaluated prog is -> $param_prog_eval\n"
     
@@ -1460,6 +1455,7 @@ do
         fi
       fi
     
+      param_prog="$prog"
     
       #TEST_RESULTS
       input_file=$(basename $input_file_path)
@@ -1525,6 +1521,10 @@ do
         single_test_configuration_file_path=${input_file_path}.config.yaml
       fi
       
+      
+      param_prog="$prog"
+      param_prog_eval=$(eval echo $param_prog)
+      param_prog="$param_prog_eval"
       
       return_buffer=""
       load_single_test_configuration_file
