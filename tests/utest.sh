@@ -236,6 +236,7 @@ flag_pipe_input=()
 flag_pipe_output=()
 flag_pipe_err_output=()
 flag_no_pipes="true"
+flag_full_in_path_in_desc="false"
 
 flag_override_good_out_file=
 flag_override_good_err_file=
@@ -764,7 +765,7 @@ function load_prop_variable {
   
   if [[ "${input_var_value}" != '' ]]; then
       return_buffer="${return_buffer}${output_var_name}=\"${output_var_value}\"\n"
-      printf "load_prop_variable ${output_var_name} -> ${input_var_value}\n"
+      #printf "load_prop_variable ${output_var_name} -> ${input_var_value}\n"
       eval $output_var_name=\$input_var_value
   fi
 }
@@ -777,11 +778,8 @@ function load_global_configuration_file {
     # Load global configuration file
     #
     
-    printf "LOAD GLOBAL CONFIURATION FILE ${global_configuration_file_path}\n"
+    #printf "LOAD GLOBAL CONFIURATION FILE ${global_configuration_file_path}\n"
     configuration_parsed_setup=$(parse_yaml "${global_configuration_file_path}" "global_config_" "false")
-    
-    printf "GLOBAL_CONFIG:\n"
-    printf "$configuration_parsed_setup\n"
     
     eval $configuration_parsed_setup
    
@@ -790,7 +788,7 @@ function load_global_configuration_file {
       prog_arr_parser_acc=""
       for prog in "${global_config_executions_[@]}"
       do
-        printf "prog -> ${prog}\n"
+        #printf "prog -> ${prog}\n"
         if [[ "$prog_arr_parser_acc" = "" ]]; then
           prog_arr_parser_acc="\"${prog}\""
         else
@@ -815,11 +813,11 @@ function load_single_test_configuration_file {
     short_name=$(shortname "$param_prog")
     config_prefix="test_config_${short_name}__"
     
-    printf "LOAD CONFIURATION FILE ${single_test_configuration_file_path}\n"
+    #printf "LOAD CONFIURATION FILE ${single_test_configuration_file_path}\n"
     configuration_parsed_setup=$(parse_yaml "${single_test_configuration_file_path}" "test_config_" "false" | grep "$short_name")
     
-    printf "CONFIG:\n"
-    printf "$configuration_parsed_setup\n"
+    #printf "CONFIG:\n"
+    #printf "$configuration_parsed_setup\n"
     
     eval $configuration_parsed_setup
     
@@ -831,7 +829,7 @@ function load_single_test_configuration_file {
     #printf "elelele\n"
     #printf "$configuration_parsed_setupsss\n"
     
-    printf "Return buffer:\n${return_buffer}"
+    #printf "Return buffer:\n${return_buffer}"
   fi
 }
 
@@ -1486,8 +1484,6 @@ do
       else
         flag_good_err_path=$flag_good_err_path_unparsed
       fi
-      
-      printf "Parsed is -> $flag_good_out_path\n"
       
       if [[ ! -f "$good_out_path" ]]; then
         good_out_path=$flag_good_out_path/${input_file/.in/.out}
